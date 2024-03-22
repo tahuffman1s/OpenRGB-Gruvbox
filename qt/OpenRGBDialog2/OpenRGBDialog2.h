@@ -30,6 +30,7 @@
 #include "ProfileManager.h"
 #include "NetworkClient.h"
 #include "NetworkServer.h"
+#include "string.h"
 
 #include <QMainWindow>
 #include <QTimer>
@@ -50,13 +51,13 @@ public:
     explicit OpenRGBDialog2(QWidget *parent = 0);
     ~OpenRGBDialog2();
 
-    void AddClient(NetworkClient* new_client);
+    void AddClient(NetworkClient *new_client);
     void AddClientTab();
     void AddI2CToolsPage();
     void AddServerTab();
 
-    void AddPlugin(OpenRGBPluginEntry* plugin);
-    void RemovePlugin(OpenRGBPluginEntry* plugin);
+    void AddPlugin(OpenRGBPluginEntry *plugin);
+    void RemovePlugin(OpenRGBPluginEntry *plugin);
 
     void setMode(unsigned char mode_val);
 
@@ -71,11 +72,11 @@ signals:
 
 public slots:
     void changeEvent(QEvent *event);
-    void SetTrayIcon(bool tray_icon);
+    void SetTrayIcon(std::string tray_icon);
     void handleAboutToQuit();
 
 private:
-    const char* context = "Ui::OpenRGBDialog2";
+    const char *context = "Ui::OpenRGBDialog2";
 
     /*-------------------------------------*\
     | Page pointers                         |
@@ -104,9 +105,9 @@ private:
     /*-------------------------------------*\
     | System tray icon and menu             |
     \*-------------------------------------*/
-    QSystemTrayIcon* trayIcon;
-    QMenu* trayIconMenu;
-    QMenu* profileMenu;
+    QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
+    QMenu *profileMenu;
 
     /*-------------------------------------*\
     | User interface                        |
@@ -141,13 +142,13 @@ private:
     void SaveProfile();
     void SaveProfileAs();
 
-    void TogglePluginsVisibility(int, QTabWidget*);
+    void TogglePluginsVisibility(int, QTabWidget *);
 
     bool device_view_showing = false;
 
-    PluginManager* plugin_manager = nullptr;
+    PluginManager *plugin_manager = nullptr;
 
-    QAction* actionExit;
+    QAction *actionExit;
     QString dialog_message;
 
 private slots:
@@ -180,7 +181,6 @@ private slots:
     void on_InformationTabBar_currentChanged(int);
     void on_DevicesTabBar_currentChanged(int);
     void on_SettingsTabBar_currentChanged(int);
-
 };
 
 #endif // OPENRGBDIALOG2_H

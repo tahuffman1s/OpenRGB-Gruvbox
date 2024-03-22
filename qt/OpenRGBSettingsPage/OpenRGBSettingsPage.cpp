@@ -9,10 +9,11 @@
 #include <QDesktopServices>
 
 using namespace Ui;
+bool monoIcon = false;
+bool gruvIcon = false;
 
-OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::OpenRGBSettingsPageUi)
+OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) : QWidget(parent),
+                                                            ui(new Ui::OpenRGBSettingsPageUi)
 {
     ui->setupUi(this);
 
@@ -37,7 +38,7 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     QString language = tr("English - US");
 
     QDirIterator file(":/i18n/", QDirIterator::Subdirectories);
-    while(file.hasNext())
+    while (file.hasNext())
     {
         translator.load(file.next());
         map.insert(translator.translate("Ui::OpenRGBSettingsPage", "English - US"), file.filePath());
@@ -46,7 +47,7 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     ui->ComboBoxLanguage->blockSignals(true);
     ui->ComboBoxLanguage->addItem(tr("System Default"), "default");
     QMapIterator<QString, QString> i(map);
-    while(i.hasNext())
+    while (i.hasNext())
     {
         i.next();
         ui->ComboBoxLanguage->addItem(i.key(), i.value());
@@ -60,7 +61,7 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
 
     json theme_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("Theme");
 
-    if(theme_settings.contains("theme"))
+    if (theme_settings.contains("theme"))
     {
         std::string theme = theme_settings["theme"];
         ui->ComboBoxTheme->setCurrentText(QString::fromStdString(theme));
@@ -77,16 +78,16 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     \*---------------------------------------------------------*/
     json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
 
-    if(ui_settings.contains("language"))
+    if (ui_settings.contains("language"))
     {
         /*-----------------------------------------------------*\
         | Get the language preference from settings             |
         |   and check the language combobox for a match         |
         \*-----------------------------------------------------*/
-        std::string language        = ui_settings["language"].get<std::string>();
-        int language_index          = ui->ComboBoxLanguage->findText(QString::fromStdString(language));
+        std::string language = ui_settings["language"].get<std::string>();
+        int language_index = ui->ComboBoxLanguage->findText(QString::fromStdString(language));
 
-        if(language_index > -1)
+        if (language_index > -1)
         {
             ui->ComboBoxLanguage->setCurrentIndex(language_index);
         }
@@ -94,44 +95,49 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     else
     {
         ui_settings["language"] = "default";
-        ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface",ui_settings);
+        ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
         SaveSettings();
         ui->ComboBoxLanguage->setCurrentIndex(0);
     }
 
-    if(ui_settings.contains("greyscale_tray_icon"))
+    if (ui_settings.contains("greyscale_tray_icon"))
     {
         ui->CheckboxTrayIconGreyscale->setChecked(ui_settings["greyscale_tray_icon"]);
     }
 
-    if(ui_settings.contains("minimize_on_close"))
+    if (ui_settings.contains("gruvbox_tray_icon"))
+    {
+        ui->CheckboxTrayIconGruvbox->setChecked(ui_settings["gruvbox_tray_icon"]);
+    }
+
+    if (ui_settings.contains("minimize_on_close"))
     {
         ui->CheckboxMinimizeOnClose->setChecked(ui_settings["minimize_on_close"]);
     }
 
-    if(ui_settings.contains("geometry"))
+    if (ui_settings.contains("geometry"))
     {
-        if(ui_settings["geometry"].contains("load_geometry"))
+        if (ui_settings["geometry"].contains("load_geometry"))
         {
             ui->CheckboxLoadGeometry->setChecked(ui_settings["geometry"]["load_geometry"]);
         }
 
-        if(ui_settings["geometry"].contains("save_on_exit"))
+        if (ui_settings["geometry"].contains("save_on_exit"))
         {
             ui->CheckboxSaveGeometry->setChecked(ui_settings["geometry"]["save_on_exit"]);
         }
     }
 
-    if(ui_settings.contains("RunZoneChecks"))
+    if (ui_settings.contains("RunZoneChecks"))
     {
         ui->CheckboxRunZoneChecks->setChecked(ui_settings["RunZoneChecks"]);
     }
     else
-    {   // default value
+    { // default value
         ui->CheckboxRunZoneChecks->setChecked(true);
     }
 
-    if(ui_settings.contains("disable_key_expansion"))
+    if (ui_settings.contains("disable_key_expansion"))
     {
         ui->CheckboxDisableKeyExpansion->setChecked(ui_settings["disable_key_expansion"]);
     }
@@ -148,7 +154,7 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     /*---------------------------------------------------------*\
     | Checkboxes                                                |
     \*---------------------------------------------------------*/
-    if(log_manager_settings.contains("log_console"))
+    if (log_manager_settings.contains("log_console"))
     {
         ui->CheckboxLogConsole->setChecked(log_manager_settings["log_console"]);
     }
@@ -159,12 +165,12 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
 #ifdef _WIN32
     json drivers_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("Drivers");
 
-    if(drivers_settings.contains("amd_smbus_reduce_cpu"))
+    if (drivers_settings.contains("amd_smbus_reduce_cpu"))
     {
         ui->CheckboxAMDSMBusReduceCPU->setChecked(drivers_settings["amd_smbus_reduce_cpu"]);
     }
 
-    if(drivers_settings.contains("shared_smbus_access"))
+    if (drivers_settings.contains("shared_smbus_access"))
     {
         ui->CheckboxSharedSMBusAccess->setChecked(drivers_settings["shared_smbus_access"]);
     }
@@ -231,7 +237,7 @@ OpenRGBSettingsPage::~OpenRGBSettingsPage()
 
 void OpenRGBSettingsPage::changeEvent(QEvent *event)
 {
-    if(event->type() == QEvent::LanguageChange)
+    if (event->type() == QEvent::LanguageChange)
     {
         ui->retranslateUi(this);
     }
@@ -242,12 +248,12 @@ void OpenRGBSettingsPage::UpdateProfiles()
     /*---------------------------------------------------------*\
     | Load AutoStart settings                                   |
     \*---------------------------------------------------------*/
-    ProfileManager* profile_manager = ResourceManager::get()->GetProfileManager();
+    ProfileManager *profile_manager = ResourceManager::get()->GetProfileManager();
 
     /*---------------------------------------------------------*\
     | Load profiles into combo box                              |
     \*---------------------------------------------------------*/
-    if(profile_manager != NULL)
+    if (profile_manager != NULL)
     {
         ui->ComboBoxAutoStartProfile->blockSignals(true);
         ui->ComboBoxExitProfile->blockSignals(true);
@@ -255,7 +261,7 @@ void OpenRGBSettingsPage::UpdateProfiles()
         ui->ComboBoxAutoStartProfile->clear();
         ui->ComboBoxExitProfile->clear();
 
-        for(std::size_t profile_index = 0; profile_index < profile_manager->profile_list.size(); profile_index++)
+        for (std::size_t profile_index = 0; profile_index < profile_manager->profile_list.size(); profile_index++)
         {
             QString new_profile = QString(profile_manager->profile_list[profile_index].c_str());
 
@@ -272,16 +278,16 @@ void OpenRGBSettingsPage::UpdateProfiles()
     \*---------------------------------------------------------*/
     json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
 
-    if(autostart_settings.contains("profile"))
+    if (autostart_settings.contains("profile"))
     {
         /*-----------------------------------------------------*\
         | Set the profile name from settings and check the      |
         |   profile combobox for a match                        |
         \*-----------------------------------------------------*/
-        std::string profile_name    = autostart_settings["profile"].get<std::string>();
-        int profile_index           = ui->ComboBoxAutoStartProfile->findText(QString::fromStdString(profile_name));
+        std::string profile_name = autostart_settings["profile"].get<std::string>();
+        int profile_index = ui->ComboBoxAutoStartProfile->findText(QString::fromStdString(profile_name));
 
-        if(profile_index > -1)
+        if (profile_index > -1)
         {
             ui->ComboBoxAutoStartProfile->setCurrentIndex(profile_index);
         }
@@ -292,9 +298,9 @@ void OpenRGBSettingsPage::UpdateProfiles()
     \*---------------------------------------------------------*/
     json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
 
-    if(ui_settings.contains("exit_profile"))
+    if (ui_settings.contains("exit_profile"))
     {
-        if(ui_settings["exit_profile"].contains("set_on_exit"))
+        if (ui_settings["exit_profile"].contains("set_on_exit"))
         {
             bool is_set_on_exit = ui_settings["exit_profile"]["set_on_exit"];
 
@@ -302,16 +308,16 @@ void OpenRGBSettingsPage::UpdateProfiles()
             ui->ComboBoxExitProfile->setEnabled(is_set_on_exit);
         }
 
-        if(ui_settings["exit_profile"].contains("profile_name"))
+        if (ui_settings["exit_profile"].contains("profile_name"))
         {
             /*-----------------------------------------------------*\
             | Set the profile name from settings and check the      |
             |   profile combobox for a match                        |
             \*-----------------------------------------------------*/
-            std::string profile_name    = ui_settings["exit_profile"]["profile_name"].get<std::string>();
-            int profile_index           = ui->ComboBoxExitProfile->findText(QString::fromStdString(profile_name));
+            std::string profile_name = ui_settings["exit_profile"]["profile_name"].get<std::string>();
+            int profile_index = ui->ComboBoxExitProfile->findText(QString::fromStdString(profile_name));
 
-            if(profile_index > -1)
+            if (profile_index > -1)
             {
                 ui->ComboBoxExitProfile->setCurrentIndex(profile_index);
             }
@@ -322,13 +328,13 @@ void OpenRGBSettingsPage::UpdateProfiles()
 void OpenRGBSettingsPage::on_ComboBoxLanguage_currentTextChanged(const QString language)
 {
 
-    bool loaded             = false;
-    QString file            = ui->ComboBoxLanguage->currentData().toString();
-    QApplication* app       = static_cast<QApplication *>(QApplication::instance());
+    bool loaded = false;
+    QString file = ui->ComboBoxLanguage->currentData().toString();
+    QApplication *app = static_cast<QApplication *>(QApplication::instance());
 
     app->removeTranslator(&translator);
 
-    if(file == "default")
+    if (file == "default")
     {
         QLocale locale = QLocale(QLocale::system());
         QLocale::setDefault(locale);
@@ -340,18 +346,18 @@ void OpenRGBSettingsPage::on_ComboBoxLanguage_currentTextChanged(const QString l
         loaded = translator.load(file);
     }
 
-    if(loaded)
+    if (loaded)
     {
         app->installTranslator(&translator);
         LOG_DEBUG("[Settings] Changed Language to %s from the %s file\n", language.toStdString().c_str(), file.toStdString().c_str());
 
-        json ui_settings    = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
-        std::string saved   = ui_settings["language"].get<std::string>();
+        json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+        std::string saved = ui_settings["language"].get<std::string>();
 
-        if(saved != language.toStdString())
+        if (saved != language.toStdString())
         {
             ui_settings["language"] = language.toStdString();
-            ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface",ui_settings);
+            ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
             SaveSettings();
         }
     }
@@ -359,7 +365,7 @@ void OpenRGBSettingsPage::on_ComboBoxLanguage_currentTextChanged(const QString l
 
 void OpenRGBSettingsPage::on_ComboBoxTheme_currentTextChanged(const QString theme)
 {
-    if(theme_initialized)
+    if (theme_initialized)
     {
         json theme_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("Theme");
         theme_settings["theme"] = theme.toStdString();
@@ -370,14 +376,44 @@ void OpenRGBSettingsPage::on_ComboBoxTheme_currentTextChanged(const QString them
 
 void OpenRGBSettingsPage::on_CheckboxTrayIconGreyscale_clicked()
 {
-    json ui_settings    = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
-    bool tray_icon      = ui->CheckboxTrayIconGreyscale->isChecked();
+    json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    monoIcon = ui->CheckboxTrayIconGreyscale->isChecked();
 
-    ui_settings["greyscale_tray_icon"] = tray_icon;
+    ui_settings["greyscale_tray_icon"] = monoIcon;
     ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
     SaveSettings();
+    if (!gruvIcon)
+    {
+        if (monoIcon)
+        {
+            emit TrayIconChanged("greyscale");
+        }
+        else
+        {
+            emit TrayIconChanged("");
+        }
+    }
+}
 
-    emit TrayIconChanged(tray_icon);
+void OpenRGBSettingsPage::on_CheckboxTrayIconGruvbox_clicked()
+{
+    json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    gruvIcon = ui->CheckboxTrayIconGruvbox->isChecked();
+
+    ui_settings["gruvbox_tray_icon"] = gruvIcon;
+    ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
+    SaveSettings();
+    if (!monoIcon)
+    {
+        if (gruvIcon)
+        {
+            emit TrayIconChanged("gruvbox");
+        }
+        else
+        {
+            emit TrayIconChanged("");
+        }
+    }
 }
 
 void OpenRGBSettingsPage::on_CheckboxMinimizeOnClose_clicked()
@@ -414,8 +450,8 @@ void Ui::OpenRGBSettingsPage::on_CheckboxRunZoneChecks_clicked()
 
 void Ui::OpenRGBSettingsPage::on_CheckboxSetOnExit_clicked(bool checked)
 {
-    json ui_settings                            = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
-    ui_settings["exit_profile"]["set_on_exit"]  = checked;
+    json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    ui_settings["exit_profile"]["set_on_exit"] = checked;
     ui_settings["exit_profile"]["profile_name"] = ui->ComboBoxExitProfile->currentText().toStdString();
     ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
     SaveSettings();
@@ -425,7 +461,7 @@ void Ui::OpenRGBSettingsPage::on_CheckboxSetOnExit_clicked(bool checked)
 
 void Ui::OpenRGBSettingsPage::on_ComboBoxExitProfile_currentTextChanged(const QString exit_profile_name)
 {
-    json ui_settings                            = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
     ui_settings["exit_profile"]["profile_name"] = exit_profile_name.toStdString();
     ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
     SaveSettings();
@@ -433,12 +469,12 @@ void Ui::OpenRGBSettingsPage::on_ComboBoxExitProfile_currentTextChanged(const QS
 
 void Ui::OpenRGBSettingsPage::on_CheckboxAutoStart_clicked()
 {
-    if(autostart_initialized)
+    if (autostart_initialized)
     {
         json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
         autostart_settings["enabled"] = ui->CheckboxAutoStart->isChecked();
 
-        if(autostart_settings["enabled"])
+        if (autostart_settings["enabled"])
         {
             RemediateAutoStartProfile(autostart_settings);
         }
@@ -519,7 +555,7 @@ void Ui::OpenRGBSettingsPage::on_ComboBoxAutoStartProfile_currentTextChanged(con
 
 void OpenRGBSettingsPage::SaveAutoStartSetting(std::string name, QString value)
 {
-    if(autostart_initialized)
+    if (autostart_initialized)
     {
         json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
         autostart_settings[name] = value.toStdString();
@@ -532,7 +568,7 @@ void OpenRGBSettingsPage::SaveAutoStartSetting(std::string name, QString value)
 
 void OpenRGBSettingsPage::SaveAutoStartSetting(std::string name, bool value)
 {
-    if(autostart_initialized)
+    if (autostart_initialized)
     {
         json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
         autostart_settings[name] = value;
@@ -582,13 +618,13 @@ void OpenRGBSettingsPage::SetAutoStartVisibility(bool visible)
 void OpenRGBSettingsPage::ConfigureAutoStart()
 {
     std::map<std::string, std::tuple<std::string, std::string, bool>> autostart_map = {
-        {"setminimized", {"--startminimized","",false}},
-        {"setserver", {"--server","",false}},
-        {"setserverhost", {"--server-host","host",false}},
-        {"setserverport", {"--server-port","port",false}},
-        {"setclient", {"--client","client",false}},
-        {"setprofile", {"--profile","profile",true}},
-        {"setcustom", {"","custom",false}},
+        {"setminimized", {"--startminimized", "", false}},
+        {"setserver", {"--server", "", false}},
+        {"setserverhost", {"--server-host", "host", false}},
+        {"setserverport", {"--server-port", "port", false}},
+        {"setclient", {"--client", "client", false}},
+        {"setprofile", {"--profile", "profile", true}},
+        {"setcustom", {"", "custom", false}},
     };
 
     json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
@@ -616,7 +652,7 @@ void OpenRGBSettingsPage::ConfigureAutoStart()
 
         std::string arguments = "";
 
-        for(std::pair<const std::string, std::tuple<std::string, std::string, bool>>& x: autostart_map)
+        for (std::pair<const std::string, std::tuple<std::string, std::string, bool>> &x : autostart_map)
         {
             std::string argumentsetting = x.first;
             std::string argument = std::get<0>(x.second);
@@ -657,11 +693,11 @@ void OpenRGBSettingsPage::ConfigureAutoStart()
 
         AutoStartInfo auto_start_info;
 
-        auto_start_info.args        = arguments;
-        auto_start_info.category    = "Utility;";
-        auto_start_info.desc        = desc;
-        auto_start_info.icon        = "OpenRGB";
-        auto_start_info.path        = auto_start.GetExePath();
+        auto_start_info.args = arguments;
+        auto_start_info.category = "Utility;";
+        auto_start_info.desc = desc;
+        auto_start_info.icon = "OpenRGB";
+        auto_start_info.path = auto_start.GetExePath();
 
         if (!auto_start.EnableAutoStart(auto_start_info))
         {
@@ -682,9 +718,8 @@ void OpenRGBSettingsPage::CreateAutoStartSettings()
         {"custom", ""},
         {"host", "0.0.0.0"},
         {"port", "6742"},
-        {"client","localhost:6742"},
-        {"profile",ui->ComboBoxAutoStartProfile->count() > 0 ? ui->ComboBoxAutoStartProfile->itemText(0).toStdString(): ""}
-    };
+        {"client", "localhost:6742"},
+        {"profile", ui->ComboBoxAutoStartProfile->count() > 0 ? ui->ComboBoxAutoStartProfile->itemText(0).toStdString() : ""}};
 
     std::map<std::string, bool> autostart_default_map_bool = {
         {"enabled", false},
@@ -699,17 +734,17 @@ void OpenRGBSettingsPage::CreateAutoStartSettings()
 
     json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
 
-    for(std::pair<const std::string, bool>& x: autostart_default_map_bool)
+    for (std::pair<const std::string, bool> &x : autostart_default_map_bool)
     {
-        if(!autostart_settings.contains(x.first))
+        if (!autostart_settings.contains(x.first))
         {
             autostart_settings[x.first] = x.second;
         }
     }
 
-    for(std::pair<const std::string, std::string>& x: autostart_default_map_string)
+    for (std::pair<const std::string, std::string> &x : autostart_default_map_string)
     {
-        if(!autostart_settings.contains(x.first))
+        if (!autostart_settings.contains(x.first))
         {
             autostart_settings[x.first] = x.second;
         }
@@ -725,14 +760,14 @@ void OpenRGBSettingsPage::RemediateAutoStartProfile(json &autostart_settings)
     | profiles and if AutoStart is enabled then we force        |
     | disable setprofile                                        |
     \*---------------------------------------------------------*/
-    if(ui->ComboBoxAutoStartProfile->count() == 0)
+    if (ui->ComboBoxAutoStartProfile->count() == 0)
     {
         ui->CheckboxAutoStartProfile->setEnabled(false);
         ui->ComboBoxAutoStartProfile->setEnabled(false);
 
         autostart_settings["profile"] = "";
 
-        if(autostart_settings["enabled"])
+        if (autostart_settings["enabled"])
         {
             autostart_settings["setprofile"] = false;
 
@@ -748,13 +783,13 @@ void OpenRGBSettingsPage::RemediateAutoStartProfile(json &autostart_settings)
     | it to a profile which exists and if AutoStart is enabled  |
     | then we force disable setprofile                          |
     \*---------------------------------------------------------*/
-    else if(autostart_settings["profile"] == "" ||
-           (autostart_settings["profile"] != "" &&
-            ui->ComboBoxAutoStartProfile->findText(QString::fromStdString(autostart_settings["profile"])) == -1))
+    else if (autostart_settings["profile"] == "" ||
+             (autostart_settings["profile"] != "" &&
+              ui->ComboBoxAutoStartProfile->findText(QString::fromStdString(autostart_settings["profile"])) == -1))
     {
         autostart_settings["profile"] = ui->ComboBoxAutoStartProfile->itemText(0).toStdString();
 
-        if(autostart_settings["enabled"])
+        if (autostart_settings["enabled"])
         {
             autostart_settings["setprofile"] = false;
 
@@ -782,7 +817,6 @@ void Ui::OpenRGBSettingsPage::on_OpenSettingsFolderButton_clicked()
     QDesktopServices::openUrl(url);
 }
 
-
 void Ui::OpenRGBSettingsPage::on_CheckboxLogConsole_clicked()
 {
     json log_manager_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("LogManager");
@@ -809,8 +843,8 @@ void Ui::OpenRGBSettingsPage::on_CheckboxSharedSMBusAccess_clicked()
 
 void Ui::OpenRGBSettingsPage::on_CheckboxDisableKeyExpansion_clicked()
 {
-    json ui_settings                            = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
-    ui_settings["disable_key_expansion"]        = ui->CheckboxDisableKeyExpansion->isChecked();
+    json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    ui_settings["disable_key_expansion"] = ui->CheckboxDisableKeyExpansion->isChecked();
     ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
     SaveSettings();
 }

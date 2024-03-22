@@ -10,8 +10,9 @@
 #include <json.hpp>
 using json = nlohmann::json;
 
-namespace Ui {
-class OpenRGBSettingsPage;
+namespace Ui
+{
+    class OpenRGBSettingsPage;
 }
 
 class Ui::OpenRGBSettingsPage : public QWidget
@@ -23,7 +24,7 @@ public:
     ~OpenRGBSettingsPage();
 
 signals:
-    void TrayIconChanged(bool tray_icon);
+    void TrayIconChanged(std::string tray_icon);
 
 public slots:
     void UpdateProfiles();
@@ -49,6 +50,7 @@ private slots:
     void on_ComboBoxTheme_currentTextChanged(const QString);
     void on_CheckboxMinimizeOnClose_clicked();
     void on_CheckboxTrayIconGreyscale_clicked();
+    void on_CheckboxTrayIconGruvbox_clicked();
     void on_CheckboxLoadGeometry_clicked();
     void on_CheckboxSaveGeometry_clicked();
     void on_CheckboxAutoStart_clicked();

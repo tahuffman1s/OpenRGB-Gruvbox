@@ -3,5 +3,6 @@
         <file>org.openrgb.OpenRGB.png</file>
         <file>fonts/OpenRGB.ttf</file>
         <file>OpenRGBGreyscale.png</file>
+        <file>OpenRGBGruvbox.png</file>
     </qresource>
 </RCC>
